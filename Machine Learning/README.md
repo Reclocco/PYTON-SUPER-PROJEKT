@@ -1,0 +1,1 @@
+Here will be a part of project associated with generating twitts. First the neural network will train on data, and then genearte texts.

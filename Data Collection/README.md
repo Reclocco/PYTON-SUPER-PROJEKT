@@ -1,0 +1,1 @@
+Here will be a part of project associated with connecting to Twitter API and retriving data for neural network to learn (twitts based on hashtags) and data about our twitts for possible data visualisations (views, retwitts, likes, etc)
