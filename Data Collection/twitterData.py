@@ -45,5 +45,15 @@ def getUserTwittsData(user):
         writer.writerows(outtweets)
     pass
 
+def csvToText(cfile, tfile):
+    csv_file = cfile
+    txt_file = tfile
+    with open(txt_file, "w") as my_output_file:
+        with open(csv_file, "r") as my_input_file:
+            [ my_output_file.write(" ".join(row)+'\n') for row in csv.reader(my_input_file)]
+        my_output_file.close()
+
 getTwittsForHashtag("#SYCOW")
 getUserTwittsData("polsport")
+csvToText('polsport_tweets.csv', 'polsport.txt')
+csvToText('#SYCOW - hasztag.csv', 'sycow.txt')
