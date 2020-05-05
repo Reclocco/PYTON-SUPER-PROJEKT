@@ -9,13 +9,21 @@ from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
 
 
-chars = sorted([chr(i) for i in range(31, 126)] + ['\n'])
+# 40 dozwolonych znaków (ewentualnie można pozbyć się cyfr) - im mniej znaków tym prościej wytrenować
+chars = sorted(
+    [str(i) for i in range(10)] +  # cyfry
+    [chr(i) for i in range(97, 123)] +  # małe litery
+    [' ', '#', '@', '.']  # znaki specjalne
+)
 char_to_num = dict((c, i) for i, c in enumerate(chars))
 num_to_char = dict((i, c) for i, c in enumerate(chars))
 
 
 def areWordsEnglish(text):
-    # średnio 85% treści tweetów jest jakimis realnymi słowami
+    # średnio 75% treści tweetów jest jakimis realnymi słowami
+    d = {'!': '.', '?': '.'}
+    text = ''.join(map(lambda c: d[c] if c in d else c, text))
+    text = ''.join((c for c in text if c in chars))
     formattedText = ''
     dictUS = enchant.Dict('en_US')
     dictGB = enchant.Dict('en_GB')
@@ -30,9 +38,9 @@ def areWordsEnglish(text):
             else:
                 # znaki interpunkcyjne
                 for sign in ['.', ',', '!', '?', ':']:
-                    if sign in word and word.index(sign) != len(word)-1:
+                    if sign in word and word.index(sign) != len(word) - 1:
                         i = word.index(sign)
-                        formattedText += word[:i+1] + ' ' + word[i+1:] + ' '
+                        formattedText += word[:i + 1] + ' ' + word[i + 1:] + ' '
                 # cyfry
                 if float(word) == word:
                     formattedText += word + ' '
@@ -134,15 +142,48 @@ def createTweet(text, result_length):
         pattern = pattern[1:len(pattern)]
         generated_text += num_to_char[index]
 
-    return generated_text
+    return formatPrediction(generated_text)
+
+
+def formatPrediction(predictedText):
+    # powtarzające się spacje
+    predictedText = ' '.join(predictedText.split())
+    # duża litera na początku
+    if 96 < ord(predictedText[0]) < 123:
+        predictedText = chr(ord(predictedText[0]) - 36) + predictedText[1:]
+    # wszystkie litery po kropce duże, (pozwala to usunąć duże litery z przetwarzania - to 24 znaki mniej)
+    for i in range(len(predictedText)):
+        char = predictedText[i]
+        if char == '.':
+            try:
+                # spacja po kropce ale nie po wielokropku
+                if predictedText[i + 1] not in [' ', '.']:
+                    predictedText = predictedText[:i + 1] + ' ' + predictedText[i + 1:]
+                # duża litera po kropce
+                elif predictedText[i + 2] != '.':
+                    print(ord(predictedText[i + 2]))
+                    predictedText = predictedText[:i + 2] + chr(
+                        max([ord(predictedText[i + 2]) - 32, 0])) + predictedText[i + 3:]
+            except IndexError:
+                pass
+        # po tych znakach nie powinno być spacji
+        elif char in ['#', '@']:
+            try:
+                if predictedText[i+1] == ' ':
+                    predictedText = predictedText[:i+1] + predictedText[i+2:]
+            except IndexError:
+                predictedText = predictedText[:i+1]
+    # TODO dodać porównywanie i zgadywanie realnych słów
+    #  (https://www.tutorialspoint.com/get-similar-words-suggestion-using-enchant-in-python)
+    return predictedText
 
 
 if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
-    formattedText = areWordsEnglish(file)
-    train(formattedText, 1, 256)
-    text = createTweet(formattedText, 100)
+    englishText = areWordsEnglish(file)
+    train(englishText, 1, 256)
+    text = createTweet(englishText, 100)
     print("\"" + text + "\"")
 
     # IDEAS TO DO TO GET BETTER RESULTS
