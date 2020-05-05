@@ -1,5 +1,7 @@
 import tweepy
 import csv
+import datetime
+
 
 consumer_key = 'a71AzCqamdL5TsPFD3iuLYhWY'
 consumer_secret = '832tfVnw9394JP78sA0N3RXZQU2HxXg0aFRIMw3dUjh77LhEqS'
@@ -13,16 +15,18 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
 def getTweetsForHashtag(hashtag, number):
-    fullText = ''
+    i = 0
     for tweet in tweepy.Cursor(api.search, hashtag,
                                lang="en",
-                               # since="2017-04-03",
-                               tweet_mode='extended'
+                               # tweet_mode='extended'
                                ).items(number):
-        # every tweet in new line
-        fullText += formatText(tweet._json) + '\n'
-    with open('%s - hasztag.txt' % hashtag, 'w+') as f:
-        f.write(fullText)
+        i += 1
+        print(f'Getting tweet \t#{i} of {number}')
+        with open('%s - hasztag - %s.txt' % (hashtag, datetime.date.today()), 'a') as f:
+            # every tweet in new line
+            text = formatText(tweet._json)
+            if text not in f.read():
+                f.write(text + '\n')
 
 
 def getUserTweetsData(user, number):
@@ -43,7 +47,7 @@ def getUserTweetsData(user, number):
 
 
 def formatText(jsonTweet):
-    text = str(jsonTweet['full_text'])
+    text = str(jsonTweet['text'])
     # # remove hashtags
     # for h in jsonTweet['entities']['hashtags']:
     #     hashtag = h['text']
@@ -53,13 +57,9 @@ def formatText(jsonTweet):
     #     user = u['screen_name']
     #     text = text.replace(user, '')
     # remove links
-    while 'http' in text:
+    if 'http' in text:
         start = text.index('http')
-        try:
-            end = text.index(' ', start)
-        except ValueError:
-            end = len(text)
-        text = text[:start - 1] + text[end:]
+        text = text[:start]
     # possible 94 characters from ASCII table
     text = ''.join(e for e in text if 31 < ord(e) < 126)
     # remove RT
@@ -79,5 +79,4 @@ def csvToText(cfile, tfile):
 
 
 if __name__ == '__main__':
-    getTweetsForHashtag("relax", 100)
-    getUserTweetsData("polsport", 200)
+    getTweetsForHashtag("pwr", 1000)
