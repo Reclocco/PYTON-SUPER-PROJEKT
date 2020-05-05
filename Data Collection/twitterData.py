@@ -12,48 +12,72 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
-def getTwittsForHashtag(hashtag):
-    csvFile = open('%s - hasztag.csv' % hashtag, 'a')
-    csvWriter = csv.writer(csvFile)
+def getTweetsForHashtag(hashtag, number):
+    fullText = ''
+    for tweet in tweepy.Cursor(api.search, hashtag,
+                               lang="en",
+                               # since="2017-04-03",
+                               tweet_mode='extended'
+                               ).items(number):
+        # every tweet in new line
+        fullText += formatText(tweet._json) + '\n'
+    with open('%s - hasztag.txt' % hashtag, 'w+') as f:
+        f.write(fullText)
 
-    for tweet in tweepy.Cursor(api.search, hashtag, count=100,
-                               lang="pl",
-                               since="2017-04-03").items():
-        #print(tweet.created_at, tweet.text)
-        csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
 
-
-def getUserTwittsData(user):
-    alltweets = []
-    new_tweets = api.user_timeline(screen_name=user, count=200)
-    alltweets.extend(new_tweets)
-    oldest = alltweets[-1].id - 1
-
-    while len(new_tweets) > 0:
-        #print("downloading tweets before %s" % (oldest))
-        new_tweets = api.user_timeline(screen_name=user, count=200, max_id=oldest)
-        alltweets.extend(new_tweets)
-        oldest = alltweets[-1].id - 1
-
-        #print("...%s tweets downloaded so far" % (len(alltweets)))
-
-    outtweets = [[tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")] for tweet in alltweets]
-
-    with open('%s_tweets.csv' % user, 'w') as f:
+def getUserTweetsData(user, number):
+    all_tweets = api.user_timeline(screen_name=user,
+                                   count=number,
+                                   tweet_mode='extended')
+    with open('%s_tweets.csv' % user, 'w+') as f:
         writer = csv.writer(f)
-        writer.writerow(["id", "created_at", "text"])
-        writer.writerows(outtweets)
-    pass
+        writer.writerow(["id", "created_at", "text", "retweets", "likes"])
+        for tweet in all_tweets:
+            jsonTweet = tweet._json
+            row = [jsonTweet['id'],
+                   jsonTweet['created_at'],
+                   formatText(jsonTweet),
+                   jsonTweet['retweet_count'],
+                   jsonTweet['favorite_count']]
+            writer.writerow(row)
+
+
+def formatText(jsonTweet):
+    text = str(jsonTweet['full_text'])
+    # # remove hashtags
+    # for h in jsonTweet['entities']['hashtags']:
+    #     hashtag = h['text']
+    #     # text = text.replace(hashtag, '')
+    # # remove mentions
+    # for u in jsonTweet['entities']['user_mentions']:
+    #     user = u['screen_name']
+    #     text = text.replace(user, '')
+    # remove links
+    while 'http' in text:
+        start = text.index('http')
+        try:
+            end = text.index(' ', start)
+        except ValueError:
+            end = len(text)
+        text = text[:start - 1] + text[end:]
+    # possible 94 characters from ASCII table
+    text = ''.join(e for e in text if 31 < ord(e) < 126)
+    # remove RT
+    text = text.replace('RT', '')
+    # remove trailing spaces
+    text = ' '.join(text.split())
+    return text
+
 
 def csvToText(cfile, tfile):
     csv_file = cfile
     txt_file = tfile
     with open(txt_file, "w") as my_output_file:
         with open(csv_file, "r") as my_input_file:
-            [ my_output_file.write(" ".join(row)+'\n') for row in csv.reader(my_input_file)]
+            [my_output_file.write(" ".join(row) + '\n') for row in csv.reader(my_input_file)]
         my_output_file.close()
 
-getTwittsForHashtag("#SYCOW")
-getUserTwittsData("polsport")
-csvToText('polsport_tweets.csv', 'polsport.txt')
-csvToText('#SYCOW - hasztag.csv', 'sycow.txt')
+
+if __name__ == '__main__':
+    getTweetsForHashtag("relax", 100)
+    getUserTweetsData("polsport", 200)
