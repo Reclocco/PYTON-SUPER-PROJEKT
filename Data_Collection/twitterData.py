@@ -48,14 +48,6 @@ def getUserTweetsData(user, number):
 
 def formatText(jsonTweet):
     text = str(jsonTweet['text'])
-    # # remove hashtags
-    # for h in jsonTweet['entities']['hashtags']:
-    #     hashtag = h['text']
-    #     # text = text.replace(hashtag, '')
-    # # remove mentions
-    # for u in jsonTweet['entities']['user_mentions']:
-    #     user = u['screen_name']
-    #     text = text.replace(user, '')
     # remove links
     if 'http' in text:
         start = text.index('http')
