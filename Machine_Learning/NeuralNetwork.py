@@ -1,25 +1,41 @@
+import os
 import numpy
-import sys
+import enchant
 import tensorflow as tf
-from nltk.tokenize import RegexpTokenizer
-from nltk.corpus import stopwords
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
 
 
-def check_words(text):
-    # TODO zmienić żeby akceptowało tylko [a-zA-Z']
-    text = text.lower()
-    tokenizer = RegexpTokenizer(r'\w+')
-    tokens = tokenizer.tokenize(text)
-    filtered = filter(lambda token: token not in stopwords.words('english'), tokens)
-    return " ".join(filtered)
+def areWordsEnglish(text):
+    formattedText = ''
+    dictUS = enchant.Dict('en_US')
+    dictGB = enchant.Dict('en_GB')
+    for word in text.split(' '):
+        try:
+            # correct english words
+            if dictUS.check(word.lower()) or dictGB.check(word.lower()):
+                formattedText += word + ' '
+            # hashtags and mentions
+            elif word[0] in ['#', '@']:
+                formattedText += word + ' '
+            else:
+                # znaki interpunkcyjne
+                for sign in ['.', ',', '!', '?', ':']:
+                    if sign in word and word.index(sign) != len(word)-1:
+                        i = word.index(sign)
+                        formattedText += word[:i+1] + ' ' + word[i+1:] + ' '
+                # cyfry
+                if float(word) == word:
+                    formattedText += word + ' '
+        except ValueError:
+            pass
+    return formattedText
 
 
 def generate(training_text, train, weight_file, result_length):
-    chars = sorted(list(set(training_text)))
+    chars = sorted([chr(i) for i in range(31, 126)] + ['\n'])
     char_to_num = dict((c, i) for i, c in enumerate(chars))
     num_to_char = dict((i, c) for i, c in enumerate(chars))
     input_len = len(training_text)
@@ -88,14 +104,13 @@ def generate(training_text, train, weight_file, result_length):
 
 
 if __name__ == '__main__':
-    # TODO get data from twitter
-    filename = '.txt'
+    filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
-    processed_inputs = check_words(file)
+    processed_inputs = areWordsEnglish(file)    # średnio 85% treści tweetów jest jakimis realnymi słowami
     # False jeżeli chcemy wykorzystać istniejące wagi i wygenerować tekst,
     # True dla trenowania nowych wag
     text = generate(processed_inputs, False, 'weightsFrankenstein.hdf5', 100)
-    print(text)
+    # print(text)
 
     # IDEAS TO DO TO GET BETTER RESULTS
     # increase the number of training epochs
