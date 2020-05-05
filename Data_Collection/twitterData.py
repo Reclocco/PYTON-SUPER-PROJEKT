@@ -1,6 +1,7 @@
 import tweepy
 import csv
 import datetime
+import time
 
 
 consumer_key = 'a71AzCqamdL5TsPFD3iuLYhWY'
@@ -17,11 +18,12 @@ api = tweepy.API(auth, wait_on_rate_limit=True)
 def getTweetsForHashtag(hashtag, number):
     # jak wydaje sie że się zasięło, to prawdopodobnie serwer cię odciął z powodu za dużej liczby zapytań Cursora
     i = 0
-    for tweet in tweepy.Cursor(api.search, hashtag,
+    for tweet in tweepy.Cursor(api.search, '#' + hashtag,
                                lang="en",
                                # tweet_mode='extended'
                                ).items(number):
         i += 1
+        time.sleep(0.5)
         print(f'Getting tweet \t{i} \tof {number}')
         with open('%s - hasztag - %s.txt' % (hashtag, datetime.date.today()), 'a') as f:
             f.write(formatText(tweet._json) + '\n')
@@ -77,4 +79,5 @@ def csvToText(cfile, tfile):
 
 
 if __name__ == '__main__':
-    getTweetsForHashtag("pwr", 2000)
+    # średnio 100 znaków na tweeta
+    getTweetsForHashtag("trump", 1000)
