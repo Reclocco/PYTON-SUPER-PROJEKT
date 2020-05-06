@@ -91,11 +91,7 @@ def generateModel(text):
     model.add(Dropout(0.3))
     model.add(LSTM(512, return_sequences=True))
     model.add(Dropout(0.3))
-    # model.add(LSTM(1024, return_sequences=True))
-    # model.add(Dropout(0.2))
-    model.add(LSTM(512, return_sequences=True))
-    model.add(Dropout(0.2))
-    model.add(LSTM(256))
+    model.add(LSTM(512))
     model.add(Dropout(0.1))
     model.add(Dense(Y.shape[1], activation='softmax'))
 
@@ -204,9 +200,6 @@ def formatPrediction(predictedText):
 
 
 def guessWords(text):
-    # TODO dodać porównywanie i zgadywanie realnych słów
-    #  (https://www.tutorialspoint.com/get-similar-words-suggestion-using-enchant-in-python)
-
     # wersja jeden - dużo spacji, trzeba jakoś łączyć i zgadywać słowa
     c = 0
     word = ''
@@ -260,7 +253,7 @@ if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    train(englishText, 1, 256)
+    train(englishText, 16, 256)
     text = createTweet(englishText, 100)
     # print("\"" + text + "\"")
 
@@ -277,12 +270,18 @@ if __name__ == '__main__':
     (L-LSTM, D-Dropout)
     1. L256 + D.3 + L512 + D.3 + L1024 + D.2 + L512 + D.2 + L256 + D.1 + Dense
     2. L256 + D.3 + L512 + D.3 + L512 + D.2 + L256 + D.1 + Dense
+    3. L256 + D.3 + L512 + D.3 + L256 + D.1 + Dense
+    4. L256 + D.3 + L512 + D.3 + L512 + D.1 + Dense
+    
+    rozmiar danych ~ 100 000 znaków
     
     STATS:
     dozwolone znaki | model | epoch | batch | loss  | średni czas na epoch
     40              | 1     | 7     | 256   | 3.06  | 1h 45min
     30              | 1     | 1     | 256   | 3.05  | 1h 30min
-    30              | 2     | 1     | 256   | 3.01  | 50min
+    30              | 2     | 1     | 256   | 3.02  | 50min
+    30              | 3     | 1     | 256   | 3.01  | 27min
+    30              | 4     | 1     | 256   | 2.81  | 35min
     
     UWAGI:
     * zmiana z 40 na 30 dozwolonych znaków (bez cyfr) znacznie przyspieszyła naukę - te 
@@ -290,4 +289,5 @@ if __name__ == '__main__':
     * zmiana rozmiiaru sieci z łącznej ilości komórek 2560 do 1536 znacznie zmiejszyła
         czas pracy na jeden epoch (uwaga: za duża ilość komórek też może być zła dla 
         wygajności sieci)
+    * optymalna ilość neuronów na poziomie 1270 +- 128 (dla 30 znaków) czyli model 4
     '''
