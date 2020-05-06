@@ -13,7 +13,7 @@ from keras.callbacks import ModelCheckpoint
 
 # 40 dozwolonych znaków (ewentualnie można pozbyć się cyfr) - im mniej znaków tym prościej wytrenować
 chars = sorted(
-    [str(i) for i in range(10)] +  # cyfry
+    # [str(i) for i in range(10)] +  # cyfry
     [chr(i) for i in range(97, 123)] +  # małe litery
     [' ', '#', '@', '.']  # znaki specjalne
 )
@@ -213,7 +213,7 @@ def guessWords(text):
     words = []
     collections = [0]
     while c < len(text):
-        while (max(collections) < 0.85 and c < len(text) and len(word) < 10) or len(word) < 2:
+        while c < len(text) and ((max(collections) < 0.85 and len(word) < 10) or len(word) < 2):
             word += text[c]
             c += 1
             suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
@@ -223,29 +223,35 @@ def guessWords(text):
         collections = [0]
     newText = ''
     for word in words:
-        bestMatch = word
-        highestValue = 0
-        suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
-        for s in suggestions:
-            val = difflib.SequenceMatcher(None, word, s).ratio()
-            if val > highestValue:
-                highestValue = val
-                bestMatch = s
-        newText += bestMatch + ' '
+        if dictUS.check(word) or dictGB.check(word):
+            newText += word + ' '
+        else:
+            bestMatch = word
+            highestValue = 0
+            suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+            for s in suggestions:
+                val = difflib.SequenceMatcher(None, word, s).ratio()
+                if val > highestValue:
+                    highestValue = val
+                    bestMatch = s
+            newText += bestMatch + ' '
 
     # wersja dwa - istnieją słowa odzielone spacjami, ewentualnie trzeba poprawić jakieś literówki
     # do zastosowania przy bardziej zaawansowanej sieci neuronowej albo po wiekszej ilości treningu
     # newText = ''
     # for word in text.split():
-    #     bestMatch = word
-    #     highestValue = 0
-    #     suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
-    #     for s in suggestions:
-    #         val = difflib.SequenceMatcher(None, word, s).ratio()
-    #         if val > highestValue:
-    #             highestValue = val
-    #             bestMatch = s
-    #     newText += bestMatch + ' '
+    #     if dictUS.check(word) or dictGB.check(word):
+    #         newText += word + ' '
+    #     else:
+    #         bestMatch = word
+    #         highestValue = 0
+    #         suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+    #         for s in suggestions:
+    #             val = difflib.SequenceMatcher(None, word, s).ratio()
+    #             if val > highestValue:
+    #                 highestValue = val
+    #                 bestMatch = s
+    #         newText += bestMatch + ' '
 
     return newText
 
@@ -254,7 +260,7 @@ if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    # train(englishText, 1, 256)
+    train(englishText, 1, 256)
     text = createTweet(englishText, 100)
     # print("\"" + text + "\"")
 
