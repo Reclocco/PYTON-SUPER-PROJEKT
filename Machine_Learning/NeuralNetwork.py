@@ -249,13 +249,92 @@ def guessWords(text):
     return newText
 
 
+def testPredictingMethod(text):
+    # sprawdza która metoda wybierania argumentu z przewidywań (funkcja cerateTweet) jest najlepsza
+    model, _, _, x_data = generateModel(text)
+    try:
+        last_weight_file = getLastWeightFile()
+        model.load_weights(last_weight_file)
+        print(f'model loaded {last_weight_file}')
+        model.compile(loss='categorical_crossentropy', optimizer='adam')
+    except (OSError, ValueError):
+        print("Cannot open weights file")
+        return ''
+
+    start = numpy.random.randint(0, len(x_data) - 1)
+    pattern = x_data[start]
+    print("Random Starting Pattern:")
+    print("\"", ''.join([num_to_char[value] for value in pattern]), "\"")
+    vocab_len = len(chars)
+
+    # Method 1 - chooces one with max probability
+    pattern = x_data[start]
+    generated_text = ''
+    for i in range(100):
+        x = numpy.reshape(pattern, (1, len(pattern), 1))
+        x = x / vocab_len
+        prediction = model.predict(x, verbose=0)
+        index = numpy.argmax(prediction)
+        pattern.append(index)
+        pattern = pattern[1:len(pattern)]
+        generated_text += num_to_char[index]
+    print(f'Method #1: "{generated_text}"')
+
+    # Method 2 - chooses one of best 3 at random
+    pattern = x_data[start]
+    generated_text = ''
+    for i in range(100):
+        x = numpy.reshape(pattern, (1, len(pattern), 1))
+        x = x / vocab_len
+        prediction = model.predict(x, verbose=0)
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        index = random.choice(indexes)
+        pattern.append(index)
+        pattern = pattern[1:len(pattern)]
+        generated_text += num_to_char[index]
+    print(f'Method #2: "{generated_text}"')
+
+    # Method 3 - choose one of best 3 with weighted probability
+    pattern = x_data[start]
+    generated_text = ''
+    for i in range(100):
+        x = numpy.reshape(pattern, (1, len(pattern), 1))
+        x = x / vocab_len
+        prediction = model.predict(x, verbose=0)
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        weights = list(prediction[0][indexes])
+        normalizedWeights = weights / sum(weights)
+        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
+        pattern.append(index)
+        pattern = pattern[1:len(pattern)]
+        generated_text += num_to_char[index]
+    print(f'Method #3: "{generated_text}"')
+
+    # Method 4 - choose one of best 3 with squared weighted probability
+    pattern = x_data[start]
+    generated_text = ''
+    for i in range(100):
+        x = numpy.reshape(pattern, (1, len(pattern), 1))
+        x = x / vocab_len
+        prediction = model.predict(x, verbose=0)
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        weights = list(map(lambda x: x ** 2, list(prediction[0][indexes])))
+        normalizedWeights = weights / sum(weights)
+        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
+        pattern.append(index)
+        pattern = pattern[1:len(pattern)]
+        generated_text += num_to_char[index]
+    print(f'Method #4: "{generated_text}"')
+
+
 if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    train(englishText, 16, 256)
-    text = createTweet(englishText, 100)
+    # train(englishText, 16, 256)
+    # text = createTweet(englishText, 100)
     # print("\"" + text + "\"")
+    testPredictingMethod(englishText)
 
     # IDEAS TO DO TO GET BETTER RESULTS
     # increase the number of training epochs
