@@ -91,8 +91,8 @@ def generateModel(text):
     model.add(Dropout(0.3))
     model.add(LSTM(512, return_sequences=True))
     model.add(Dropout(0.3))
-    model.add(LSTM(1024, return_sequences=True))
-    model.add(Dropout(0.2))
+    # model.add(LSTM(1024, return_sequences=True))
+    # model.add(Dropout(0.2))
     model.add(LSTM(512, return_sequences=True))
     model.add(Dropout(0.2))
     model.add(LSTM(256))
@@ -271,3 +271,23 @@ if __name__ == '__main__':
     # adjust the batch size
     # one hot-encode the inputs
     # padding the input sequences
+
+    '''
+    zastosowane modele:
+    (L-LSTM, D-Dropout)
+    1. L256 + D.3 + L512 + D.3 + L1024 + D.2 + L512 + D.2 + L256 + D.1 + Dense
+    2. L256 + D.3 + L512 + D.3 + L512 + D.2 + L256 + D.1 + Dense
+    
+    STATS:
+    dozwolone znaki | model | epoch | batch | loss  | średni czas na epoch
+    40              | 1     | 7     | 256   | 3.06  | 1h 45min
+    30              | 1     | 1     | 256   | 3.05  | 1h 30min
+    30              | 2     | 1     | 256   | 3.01  | 50min
+    
+    UWAGI:
+    * zmiana z 40 na 30 dozwolonych znaków (bez cyfr) znacznie przyspieszyła naukę - te 
+        same efekty po 1 epochu, jak po 7 wcześniej
+    * zmiana rozmiiaru sieci z łącznej ilości komórek 2560 do 1536 znacznie zmiejszyła
+        czas pracy na jeden epoch (uwaga: za duża ilość komórek też może być zła dla 
+        wygajności sieci)
+    '''
