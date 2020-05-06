@@ -369,4 +369,10 @@ if __name__ == '__main__':
         czas pracy na jeden epoch (uwaga: za duża ilość komórek też może być zła dla 
         wygajności sieci)
     * optymalna ilość neuronów na poziomie 1270 +- 128 (dla 30 znaków) czyli model 4
+    * batch (typowo 64-512, musi być podzielne na 8)
+        medium.com/@canerkilinc/selecting-optimal-lstm-batch-size-63066d88b96b
+        "it has been observed that when using a larger batch there is a significant
+        degradation in quiality (measured as ability to generalize)"
+        stats.stackexchange.com/questions/164876/tradeoff-batch-size-vs-number-of-iterations-to-train-a-neural-network
+        (prawdopodobnie optymalnie będzie któreś z 128, 256, 384
     '''
