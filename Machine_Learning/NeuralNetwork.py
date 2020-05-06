@@ -2,6 +2,7 @@ import os
 import numpy
 import enchant
 import datetime
+import random
 import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
@@ -21,6 +22,7 @@ num_to_char = dict((i, c) for i, c in enumerate(chars))
 
 def areWordsEnglish(text):
     # średnio 75% treści tweetów jest jakimis realnymi słowami
+    text = text.lower()
     d = {'!': '.', '?': '.'}
     text = ''.join(map(lambda c: d[c] if c in d else c, text))
     text = ''.join((c for c in text if c in chars))
@@ -30,7 +32,7 @@ def areWordsEnglish(text):
     for word in text.split(' '):
         try:
             # correct english words
-            if dictUS.check(word.lower()) or dictGB.check(word.lower()):
+            if dictUS.check(word) or dictGB.check(word):
                 formattedText += word + ' '
             # hashtags and mentions
             elif word[0] in ['#', '@']:
@@ -116,7 +118,7 @@ def train(text, epoch_n, batch_s):
 
 
 def createTweet(text, result_length):
-    model, X, Y, x_data = generateModel(text)
+    model, _, _, x_data = generateModel(text)
     try:
         last_weight_file = getLastWeightFile()
         model.load_weights(last_weight_file)
@@ -130,14 +132,32 @@ def createTweet(text, result_length):
     pattern = x_data[start]
     print("Random Starting Pattern:")
     print("\"", ''.join([num_to_char[value] for value in pattern]), "\"")
-
     vocab_len = len(chars)
     generated_text = ''
     for i in range(result_length):
         x = numpy.reshape(pattern, (1, len(pattern), 1))
         x = x / vocab_len
         prediction = model.predict(x, verbose=0)
+
+        # chooces one with max probability
         index = numpy.argmax(prediction)
+
+        # chooses one of best 3 at random
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        index = random.choice(indexes)
+
+        # choose one of best 3 with weighted probability
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        weights = list(prediction[0][indexes])
+        normalizedWeights = weights / sum(weights)
+        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
+
+        # choose one of best 3 with squared weighted probability
+        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
+        weights = list(map(lambda x: x**2, list(prediction[0][indexes])))
+        normalizedWeights = weights / sum(weights)
+        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
+
         pattern.append(index)
         pattern = pattern[1:len(pattern)]
         generated_text += num_to_char[index]
@@ -146,11 +166,12 @@ def createTweet(text, result_length):
 
 
 def formatPrediction(predictedText):
-    # powtarzające się spacje
-    predictedText = ' '.join(predictedText.split())
+    print("\"", predictedText, "\"")
     # duża litera na początku
     if 96 < ord(predictedText[0]) < 123:
-        predictedText = chr(ord(predictedText[0]) - 36) + predictedText[1:]
+        predictedText = chr(ord(predictedText[0]) - 32) + predictedText[1:]
+    # powtarzające się spacje
+    predictedText = ' '.join(predictedText.split())
     # wszystkie litery po kropce duże, (pozwala to usunąć duże litery z przetwarzania - to 24 znaki mniej)
     for i in range(len(predictedText)):
         char = predictedText[i]
@@ -182,8 +203,8 @@ if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    train(englishText, 1, 256)
-    text = createTweet(englishText, 100)
+    # train(englishText, 5, 256)
+    text = createTweet(englishText, 10)
     print("\"" + text + "\"")
 
     # IDEAS TO DO TO GET BETTER RESULTS
