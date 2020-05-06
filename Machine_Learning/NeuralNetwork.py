@@ -1,6 +1,7 @@
 import os
 import numpy
 import enchant
+import difflib
 import datetime
 import random
 import tensorflow as tf
@@ -18,17 +19,19 @@ chars = sorted(
 )
 char_to_num = dict((c, i) for i, c in enumerate(chars))
 num_to_char = dict((i, c) for i, c in enumerate(chars))
+dictUS = enchant.Dict('en_US')
+dictGB = enchant.Dict('en_GB')
 
 
 def areWordsEnglish(text):
     # średnio 75% treści tweetów jest jakimis realnymi słowami
     text = text.lower()
+    # change interpunction to .
     d = {'!': '.', '?': '.'}
     text = ''.join(map(lambda c: d[c] if c in d else c, text))
+    # allow only specified chars
     text = ''.join((c for c in text if c in chars))
     formattedText = ''
-    dictUS = enchant.Dict('en_US')
-    dictGB = enchant.Dict('en_GB')
     for word in text.split(' '):
         try:
             # correct english words
@@ -39,10 +42,9 @@ def areWordsEnglish(text):
                 formattedText += word + ' '
             else:
                 # znaki interpunkcyjne
-                for sign in ['.', ',', '!', '?', ':']:
-                    if sign in word and word.index(sign) != len(word) - 1:
-                        i = word.index(sign)
-                        formattedText += word[:i + 1] + ' ' + word[i + 1:] + ' '
+                if '.' in word and word.index('.') != len(word) - 1:
+                    i = word.index('.')
+                    formattedText += word[:i + 1] + ' ' + word[i + 1:] + ' '
                 # cyfry
                 if float(word) == word:
                     formattedText += word + ' '
@@ -166,7 +168,7 @@ def createTweet(text, result_length):
 
 
 def formatPrediction(predictedText):
-    print("\"", predictedText, "\"")
+    print(f'created by NN: \t\t\t"{predictedText}"')
     # duża litera na początku
     if 96 < ord(predictedText[0]) < 123:
         predictedText = chr(ord(predictedText[0]) - 32) + predictedText[1:]
@@ -194,18 +196,50 @@ def formatPrediction(predictedText):
                     predictedText = predictedText[:i+1] + predictedText[i+2:]
             except IndexError:
                 predictedText = predictedText[:i+1]
+    print(f'po zmianie wielkosci: \t"{predictedText}"')
+
+    predictedText = guessWords(predictedText)
+    print(f'po zgadywaniu: \t\t\t"{predictedText}"')
+    return predictedText
+
+
+def guessWords(text):
     # TODO dodać porównywanie i zgadywanie realnych słów
     #  (https://www.tutorialspoint.com/get-similar-words-suggestion-using-enchant-in-python)
-    return predictedText
+    c = 0
+    word = ''
+    words = []
+    collections = [0]
+    while c < len(text):
+        while (max(collections) < 0.85 and c < len(text) and len(word) < 10) or len(word) < 2:
+            word += text[c]
+            c += 1
+            suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+            collections = [difflib.SequenceMatcher(None, word, s).ratio() for s in suggestions]
+        words.append(word)
+        word = ''
+        collections = [0]
+    newText = ''
+    for word in words:
+        bestMatch = word
+        highestValue = 0
+        suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+        for s in suggestions:
+            val = difflib.SequenceMatcher(None, word, s).ratio()
+            if val > highestValue:
+                highestValue = val
+                bestMatch = s
+        newText += bestMatch + ' '
+    return newText
 
 
 if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    # train(englishText, 5, 256)
-    text = createTweet(englishText, 10)
-    print("\"" + text + "\"")
+    # train(englishText, 1, 256)
+    text = createTweet(englishText, 100)
+    # print("\"" + text + "\"")
 
     # IDEAS TO DO TO GET BETTER RESULTS
     # increase the number of training epochs
