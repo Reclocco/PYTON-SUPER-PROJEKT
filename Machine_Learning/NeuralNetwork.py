@@ -206,6 +206,8 @@ def formatPrediction(predictedText):
 def guessWords(text):
     # TODO dodać porównywanie i zgadywanie realnych słów
     #  (https://www.tutorialspoint.com/get-similar-words-suggestion-using-enchant-in-python)
+
+    # wersja jeden - dużo spacji, trzeba jakoś łączyć i zgadywać słowa
     c = 0
     word = ''
     words = []
@@ -230,6 +232,21 @@ def guessWords(text):
                 highestValue = val
                 bestMatch = s
         newText += bestMatch + ' '
+
+    # wersja dwa - istnieją słowa odzielone spacjami, ewentualnie trzeba poprawić jakieś literówki
+    # do zastosowania przy bardziej zaawansowanej sieci neuronowej albo po wiekszej ilości treningu
+    # newText = ''
+    # for word in text.split():
+    #     bestMatch = word
+    #     highestValue = 0
+    #     suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+    #     for s in suggestions:
+    #         val = difflib.SequenceMatcher(None, word, s).ratio()
+    #         if val > highestValue:
+    #             highestValue = val
+    #             bestMatch = s
+    #     newText += bestMatch + ' '
+
     return newText
 
 
