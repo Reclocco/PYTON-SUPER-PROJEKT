@@ -140,22 +140,6 @@ def createTweet(text, result_length):
         # chooces one with max probability
         index = numpy.argmax(prediction)
 
-        # chooses one of best 3 at random
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        index = random.choice(indexes)
-
-        # choose one of best 3 with weighted probability
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        weights = list(prediction[0][indexes])
-        normalizedWeights = weights / sum(weights)
-        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
-
-        # choose one of best 3 with squared weighted probability
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        weights = list(map(lambda x: x**2, list(prediction[0][indexes])))
-        normalizedWeights = weights / sum(weights)
-        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
-
         pattern.append(index)
         pattern = pattern[1:len(pattern)]
         generated_text += num_to_char[index]
@@ -164,7 +148,6 @@ def createTweet(text, result_length):
 
 
 def formatPrediction(predictedText):
-    print(f'created by NN: \t\t\t"{predictedText}"')
     # duża litera na początku
     if 96 < ord(predictedText[0]) < 123:
         predictedText = chr(ord(predictedText[0]) - 32) + predictedText[1:]
@@ -172,15 +155,17 @@ def formatPrediction(predictedText):
     predictedText = ' '.join(predictedText.split())
     # wszystkie litery po kropce duże, (pozwala to usunąć duże litery z przetwarzania - to 24 znaki mniej)
     for i in range(len(predictedText)):
-        char = predictedText[i]
+        try:
+            char = predictedText[i]
+        except IndexError:
+            pass
         if char == '.':
             try:
                 # spacja po kropce ale nie po wielokropku
                 if predictedText[i + 1] not in [' ', '.']:
                     predictedText = predictedText[:i + 1] + ' ' + predictedText[i + 1:]
                 # duża litera po kropce
-                elif predictedText[i + 2] != '.':
-                    print(ord(predictedText[i + 2]))
+                elif predictedText[i + 2] not in ['.', '#', '@']:
                     predictedText = predictedText[:i + 2] + chr(
                         max([ord(predictedText[i + 2]) - 32, 0])) + predictedText[i + 3:]
             except IndexError:
@@ -192,30 +177,16 @@ def formatPrediction(predictedText):
                     predictedText = predictedText[:i+1] + predictedText[i+2:]
             except IndexError:
                 predictedText = predictedText[:i+1]
-    print(f'po zmianie wielkosci: \t"{predictedText}"')
 
     predictedText = guessWords(predictedText)
-    print(f'po zgadywaniu: \t\t\t"{predictedText}"')
     return predictedText
 
 
 def guessWords(text):
-    # wersja jeden - dużo spacji, trzeba jakoś łączyć i zgadywać słowa
-    c = 0
-    word = ''
-    words = []
-    collections = [0]
-    while c < len(text):
-        while c < len(text) and ((max(collections) < 0.85 and len(word) < 10) or len(word) < 2):
-            word += text[c]
-            c += 1
-            suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
-            collections = [difflib.SequenceMatcher(None, word, s).ratio() for s in suggestions]
-        words.append(word)
-        word = ''
-        collections = [0]
+    # istnieją słowa odzielone spacjami, ewentualnie trzeba poprawić jakieś literówki
+    # do zastosowania przy bardziej zaawansowanej sieci neuronowej albo po wiekszej ilości treningu
     newText = ''
-    for word in words:
+    for word in text.split():
         if dictUS.check(word) or dictGB.check(word):
             newText += word + ' '
         else:
@@ -229,102 +200,7 @@ def guessWords(text):
                     bestMatch = s
             newText += bestMatch + ' '
 
-    # wersja dwa - istnieją słowa odzielone spacjami, ewentualnie trzeba poprawić jakieś literówki
-    # do zastosowania przy bardziej zaawansowanej sieci neuronowej albo po wiekszej ilości treningu
-    # newText = ''
-    # for word in text.split():
-    #     if dictUS.check(word) or dictGB.check(word):
-    #         newText += word + ' '
-    #     else:
-    #         bestMatch = word
-    #         highestValue = 0
-    #         suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
-    #         for s in suggestions:
-    #             val = difflib.SequenceMatcher(None, word, s).ratio()
-    #             if val > highestValue:
-    #                 highestValue = val
-    #                 bestMatch = s
-    #         newText += bestMatch + ' '
-
     return newText
-
-
-def testPredictingMethod(text):
-    # sprawdza która metoda wybierania argumentu z przewidywań (funkcja cerateTweet) jest najlepsza
-    model, _, _, x_data = generateModel(text)
-    try:
-        last_weight_file = getLastWeightFile()
-        model.load_weights(last_weight_file)
-        print(f'model loaded {last_weight_file}')
-        model.compile(loss='categorical_crossentropy', optimizer='adam')
-    except (OSError, ValueError):
-        print("Cannot open weights file")
-        return ''
-
-    start = numpy.random.randint(0, len(x_data) - 1)
-    pattern = x_data[start]
-    print("Random Starting Pattern:")
-    print("\"", ''.join([num_to_char[value] for value in pattern]), "\"")
-    vocab_len = len(chars)
-
-    # Method 1 - chooces one with max probability
-    pattern = x_data[start]
-    generated_text = ''
-    for i in range(100):
-        x = numpy.reshape(pattern, (1, len(pattern), 1))
-        x = x / vocab_len
-        prediction = model.predict(x, verbose=0)
-        index = numpy.argmax(prediction)
-        pattern.append(index)
-        pattern = pattern[1:len(pattern)]
-        generated_text += num_to_char[index]
-    print(f'Method #1: "{generated_text}"')
-
-    # Method 2 - chooses one of best 3 at random
-    pattern = x_data[start]
-    generated_text = ''
-    for i in range(100):
-        x = numpy.reshape(pattern, (1, len(pattern), 1))
-        x = x / vocab_len
-        prediction = model.predict(x, verbose=0)
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        index = random.choice(indexes)
-        pattern.append(index)
-        pattern = pattern[1:len(pattern)]
-        generated_text += num_to_char[index]
-    print(f'Method #2: "{generated_text}"')
-
-    # Method 3 - choose one of best 3 with weighted probability
-    pattern = x_data[start]
-    generated_text = ''
-    for i in range(100):
-        x = numpy.reshape(pattern, (1, len(pattern), 1))
-        x = x / vocab_len
-        prediction = model.predict(x, verbose=0)
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        weights = list(prediction[0][indexes])
-        normalizedWeights = weights / sum(weights)
-        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
-        pattern.append(index)
-        pattern = pattern[1:len(pattern)]
-        generated_text += num_to_char[index]
-    print(f'Method #3: "{generated_text}"')
-
-    # Method 4 - choose one of best 3 with squared weighted probability
-    pattern = x_data[start]
-    generated_text = ''
-    for i in range(100):
-        x = numpy.reshape(pattern, (1, len(pattern), 1))
-        x = x / vocab_len
-        prediction = model.predict(x, verbose=0)
-        indexes = numpy.flip(numpy.argpartition(prediction[0], -3)[-3:])
-        weights = list(map(lambda x: x ** 2, list(prediction[0][indexes])))
-        normalizedWeights = weights / sum(weights)
-        index = numpy.random.choice(indexes, 1, True, normalizedWeights)[0]
-        pattern.append(index)
-        pattern = pattern[1:len(pattern)]
-        generated_text += num_to_char[index]
-    print(f'Method #4: "{generated_text}"')
 
 
 if __name__ == '__main__':
@@ -332,9 +208,8 @@ if __name__ == '__main__':
     file = open(filename).read()
     englishText = areWordsEnglish(file)
     # train(englishText, 16, 256)
-    # text = createTweet(englishText, 100)
-    # print("\"" + text + "\"")
-    testPredictingMethod(englishText)
+    text = createTweet(englishText, 100)
+    print("\"" + text + "\"")
 
     # IDEAS TO DO TO GET BETTER RESULTS
     # increase the number of training epochs
@@ -360,7 +235,7 @@ if __name__ == '__main__':
     30              | 1     | 1     | 256   | 3.05  | 1h 30min
     30              | 2     | 1     | 256   | 3.02  | 50min
     30              | 3     | 1     | 256   | 3.01  | 27min
-    30              | 4     | 1     | 256   | 2.81  | 35min
+    30              | 4     | 17    | 256   | 0.33  | 35min
     
     UWAGI:
     * zmiana z 40 na 30 dozwolonych znaków (bez cyfr) znacznie przyspieszyła naukę - te 
