@@ -1,16 +1,78 @@
 {% extends "base.html" %}
 {% block title %} Tweet Generator {% endblock %}
 {% block content %}
-    <div class="body">
-        <div class="container-fluid pt-2">
-            <div class="row welcome text-center ">
-                <div class="col-12">
-                    <h1 class="display-4  float-centre"> Your artificial Tweet is here!</h1>
-                </div>
-                <div class="col-12">
-                    <p class="lead"> {{tweet}}</p>
+    <style>
+        /* Center the loader */
+        #loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 1;
+            margin: 0 0 0 -75px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+          0% { -webkit-transform: rotate(0deg); }
+          100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* Add animation to "page content" */
+        .animate-bottom {
+          position: relative;
+          -webkit-animation-name: animatebottom;
+          -webkit-animation-duration: 1s;
+          animation-name: animatebottom;
+          animation-duration: 1s
+        }
+
+        @-webkit-keyframes animatebottom {
+          from { bottom:-100px; opacity:0 }
+          to { bottom:0px; opacity:1 }
+        }
+
+        @keyframes animatebottom {
+          from{ bottom:-100px; opacity:0 }
+          to{ bottom:0; opacity:1 }
+        }
+
+        #tweet {
+          text-align: center;
+        }
+    </style>
+
+    <div class="container-fluid pt-2" onload="myFunction()">
+        <div class="row welcome text-center ">
+            <div class="col-12">
+                <h1 class="display-4  float-centre"> Your artificial Tweet is here!</h1>
+            </div>
+            <div class="col-12">
+<!--                <div id="loader"></div>-->
+                <div id="tweet" onload="myFunction()">
+                    <p>{{tweet}}</p>
                 </div>
             </div>
         </div>
     </div>
+
+    <script type="javascript">
+        let myVar="stoopid foo";
+
+        function myFunction() {
+            document.getElementById("tweet").innerHTML = myVar
+        }
+
+    </script>
+
 {% endblock %}
