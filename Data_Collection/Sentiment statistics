@@ -61,4 +61,6 @@ def getData():
     plt.xlabel("Number of Tweets")
     plt.ylabel("Sentiment")
     plt.show()
-getData()
+    
+if __name__ == '__main__':
+    getData()
