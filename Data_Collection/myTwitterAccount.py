@@ -29,7 +29,7 @@ def deleteTweet(number):
 
 if __name__ == '__main__':
     # postTweet('Yey, I will be a bot and this is test tweet')
-    #deleteTweet(0)
+    #deleteTweet(0) # 0, -1, -2  w tę stronę
     # getMyTweetsData(100)
     # deleteLastTweet()
     pass
