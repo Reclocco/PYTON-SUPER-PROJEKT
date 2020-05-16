@@ -3,7 +3,6 @@ import numpy
 import enchant
 import difflib
 import datetime
-import random
 import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
@@ -155,6 +154,7 @@ def formatPrediction(predictedText):
     predictedText = ' '.join(predictedText.split())
     # wszystkie litery po kropce duże, (pozwala to usunąć duże litery z przetwarzania - to 24 znaki mniej)
     for i in range(len(predictedText)):
+        char = ''
         try:
             char = predictedText[i]
         except IndexError:
