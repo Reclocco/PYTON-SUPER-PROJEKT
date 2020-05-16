@@ -1,5 +1,5 @@
 import difflib
-from Machine_Learning.readText import dictUS, dictGB
+import enchant
 
 
 def formatPrediction(predictedText):
@@ -41,6 +41,8 @@ def formatPrediction(predictedText):
 def guessWords(text):
     # istnieją słowa odzielone spacjami, ewentualnie trzeba poprawić jakieś literówki
     # do zastosowania przy bardziej zaawansowanej sieci neuronowej albo po wiekszej ilości treningu
+    dictUS = enchant.Dict('en_US')
+    dictGB = enchant.Dict('en_GB')
     newText = ''
     for word in text.split():
         if dictUS.check(word) or dictGB.check(word):

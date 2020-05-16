@@ -1,22 +1,12 @@
 import os
 import enchant
-# from Machine_Learning.NeuralNetwork import train, createTweet
-
-
-# 40 dozwolonych znaków (ewentualnie można pozbyć się cyfr)
-# im mniej znaków tym prościej wytrenować
-chars = sorted(
-    # [str(i) for i in range(10)] +  # cyfry
-    [chr(i) for i in range(97, 123)] +  # małe litery
-    [' ', '#', '@', '.']  # znaki specjalne
-)
-# słowniki
-dictUS = enchant.Dict('en_US')
-dictGB = enchant.Dict('en_GB')
+from Machine_Learning.NeuralNetwork import chars, train, createTweet
 
 
 def areWordsEnglish(text):
     # średnio 75% treści tweetów jest jakimis realnymi słowami
+    dictUS = enchant.Dict('en_US')
+    dictGB = enchant.Dict('en_GB')
     text = text.lower()
     # change interpunction to .
     d = {'!': '.', '?': '.'}
@@ -46,12 +36,9 @@ def areWordsEnglish(text):
 
 
 if __name__ == '__main__':
-    # musi być zaimportowane tu, aby uniknąć 'circular imports'
-    from Machine_Learning.NeuralNetwork import train, createTweet
-
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    # train(englishText, 16, 256)
+    train(englishText, 1, 256)
     text = createTweet(englishText, 100)
     print("\"" + text + "\"")

@@ -6,14 +6,16 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
-from Machine_Learning.readText import chars
 from Machine_Learning.textFormating import formatPrediction
 
-# chars = sorted(
-#     # [str(i) for i in range(10)] +  # cyfry
-#     [chr(i) for i in range(97, 123)] +  # małe litery
-#     [' ', '#', '@', '.']  # znaki specjalne
-# )
+
+# 30 dozwolonych znaków
+# (im mniej znaków tym prościej wytrenować)
+chars = sorted(
+        [chr(i) for i in range(97, 123)] +  # małe litery
+        [' ', '#', '@', '.']  # znaki specjalne
+    )
+# przeliczenie ze znaków na liczby
 char_to_num = dict((c, i) for i, c in enumerate(chars))
 num_to_char = dict((i, c) for i, c in enumerate(chars))
 
@@ -110,3 +112,37 @@ def createTweet(text, result_length):
         generated_text += num_to_char[index]
 
     return formatPrediction(generated_text)
+
+
+'''
+    zastosowane modele:
+    (L-LSTM, D-Dropout)
+    1. L256 + D.3 + L512 + D.3 + L1024 + D.2 + L512 + D.2 + L256 + D.1 + Dense
+    2. L256 + D.3 + L512 + D.3 + L512 + D.2 + L256 + D.1 + Dense
+    3. L256 + D.3 + L512 + D.3 + L256 + D.1 + Dense
+    4. L256 + D.3 + L512 + D.3 + L512 + D.1 + Dense
+
+    rozmiar danych ~ 100 000 znaków
+
+    STATS:
+    dozwolone znaki | model | epoch | batch | loss  | średni czas na epoch
+    40              | 1     | 7     | 256   | 3.06  | 1h 45min
+    30              | 1     | 1     | 256   | 3.05  | 1h 30min
+    30              | 2     | 1     | 256   | 3.02  | 50min
+    30              | 3     | 1     | 256   | 3.01  | 27min
+    30              | 4     | 17    | 256   | 0.33  | 35min
+
+    UWAGI:
+    * zmiana z 40 na 30 dozwolonych znaków (bez cyfr) znacznie przyspieszyła naukę - te
+        same efekty po 1 epochu, jak po 7 wcześniej
+    * zmiana rozmiiaru sieci z łącznej ilości komórek 2560 do 1536 znacznie zmiejszyła
+        czas pracy na jeden epoch (uwaga: za duża ilość komórek też może być zła dla
+        wygajności sieci)
+    * optymalna ilość neuronów na poziomie 1270 +- 128 (dla 30 znaków) czyli model 4
+    * batch (typowo 64-512, musi być podzielne na 8)
+        medium.com/@canerkilinc/selecting-optimal-lstm-batch-size-63066d88b96b
+        "it has been observed that when using a larger batch there is a significant
+        degradation in quiality (measured as ability to generalize)"
+        stats.stackexchange.com/questions/164876/tradeoff-batch-size-vs-number-of-iterations-to-train-a-neural-network
+        (na podstawwie prób optymalne wychodzi 256)
+'''
