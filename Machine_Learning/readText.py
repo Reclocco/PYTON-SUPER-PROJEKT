@@ -39,6 +39,6 @@ if __name__ == '__main__':
     filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump - hasztag - 2020-05-05.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
-    train(englishText, 1, 256)
+    # train(englishText, 1, 256)
     text = createTweet(englishText, 100)
     print("\"" + text + "\"")

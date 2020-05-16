@@ -95,8 +95,6 @@ def createTweet(text, result_length):
 
     start = numpy.random.randint(0, len(x_data) - 1)
     pattern = x_data[start]
-    print("Random Starting Pattern:")
-    print("\"", ''.join([num_to_char[value] for value in pattern]), "\"")
     vocab_len = len(chars)
     generated_text = ''
     for i in range(result_length):
