@@ -1,4 +1,4 @@
-import tweepy
+ import tweepy
 from datetime import datetime
 from textblob import TextBlob
 import matplotlib.pyplot as plt
@@ -18,12 +18,13 @@ def getE1():
     E1 = "Donald Trump"
     return E1
 
+
 def getE2():
     E2 = 100
     return E2
 
-def getData():
 
+def getData():
     keyword = getE1()
     number_of_tweets = getE2()
 
@@ -51,16 +52,18 @@ def getData():
 
     plt.scatter(numbers_list, polarity_list)
 
-    averagePolarity = (sum(polarity_list))/(len(polarity_list))
+    averagePolarity = (sum(polarity_list)) / (len(polarity_list))
     averagePolarity = "{0:.0f}%".format(averagePolarity * 100)
-    time  = datetime.now().strftime("At: %H:%M\nOn: %m-%d-%y")
+    time = datetime.now().strftime("At: %H:%M\nOn: %m-%d-%y")
 
-    plt.text(0, 1.25, "Average Sentiment:  " + str(averagePolarity) + "\n" + time, fontsize=12, bbox = dict(facecolor='none', edgecolor='black', boxstyle='square, pad = 1'))
+    plt.text(0, 1.25, "Average Sentiment:  " + str(averagePolarity) + "\n" + time, fontsize=12,
+             bbox=dict(facecolor='none', edgecolor='black', boxstyle='square, pad = 1'))
 
     plt.title("Sentiment of " + keyword + " on Twitter")
     plt.xlabel("Number of Tweets")
     plt.ylabel("Sentiment")
     plt.show()
-    
+
+
 if __name__ == '__main__':
     getData()
