@@ -25,7 +25,7 @@ def getTweetsForHashtag(hashtag, number):
         i += 1
         time.sleep(0.5)
         print(f'Getting tweet \t{i} \tof {number}')
-        with open('%s - hasztag - %s.txt' % (hashtag, datetime.date.today()), 'a') as f:
+        with open('%s.txt' % hashtag, 'a') as f:
             f.write(formatText(tweet._json) + '\n')
 
 
