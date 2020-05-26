@@ -17,6 +17,7 @@ def home():
 def generate():
     # generate tweets to pass
     # tweet = "lorem impsum tralala poka bimboły jak zdać studia tutorial 5 min fast"
+    # TODO dodać animacje ładowania, bo na razie po prostu długo sama strona się ładuje (~ 30s)
     tweet = createForTopic('trump')
     postTweet(tweet)
     return render_template('generate.html', tweet=tweet)
