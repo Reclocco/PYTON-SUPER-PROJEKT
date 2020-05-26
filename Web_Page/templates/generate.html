@@ -52,27 +52,29 @@
         }
     </style>
 
-    <div class="container-fluid pt-2" onload="myFunction()">
+    <div class="container-fluid pt-2">
         <div class="row welcome text-center ">
             <div class="col-12">
                 <h1 class="display-4  float-centre"> Your artificial Tweet is here!</h1>
             </div>
             <div class="col-12">
 <!--                <div id="loader"></div>-->
-                <div id="tweet" onload="myFunction()">
-                    <p>{{tweet}}</p>
+                <div class="tweet-container col-sm-9 col-md-7 col-lg-5">
+                    <p class="name1">PowazneKonto</p>
+                    <p class="name2">@PowazneK</p>
+
+                    <div id="tweet">
+                        <p>{{tweet}}</p>
+                    </div>
+
+                    <div class="tweet-data-container">
+                        <p id="data">data</p>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-
-    <script type="javascript">
-        let myVar="stoopid foo";
-
-        function myFunction() {
-            document.getElementById("tweet").innerHTML = myVar
-        }
-
-    </script>
+    <script src="/static/js/checkDate.js"></script>
 
 {% endblock %}

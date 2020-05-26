@@ -1,0 +1,35 @@
+.tweet-container {
+    margin: 20px auto 20px auto;
+    padding: 20px;
+    background-color: #1e2b37;
+}
+
+.tweet-container * {
+    color: white;
+    text-align: left;
+}
+
+.name1 {
+    font-weight: bold;
+    margin-bottom: 0;
+    line-height: 0.8em;
+}
+.name2 {
+    color: grey;
+    margin-bottom: 15px;
+}
+
+#tweet {
+    padding: 10px;
+}
+#tweet > p {
+    font-size: 1.5rem;
+}
+
+.tweet-data-container {
+    border-top: 1px solid grey;
+}
+#data {
+    margin: 5px 0;
+    color: grey;
+}
