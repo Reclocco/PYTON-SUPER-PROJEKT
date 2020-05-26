@@ -1,5 +1,6 @@
 import difflib
 import enchant
+import random
 
 
 def formatPrediction(predictedText):
@@ -33,6 +34,14 @@ def formatPrediction(predictedText):
                     predictedText = predictedText[:i+1] + predictedText[i+2:]
             except IndexError:
                 predictedText = predictedText[:i+1]
+
+    # na wypadek gdyby mentions powstało rzeczywiste - dodanie losowej litery
+    t = ''
+    for char in predictedText:
+        t += char
+        if char == '@':
+            t += chr(random.randint(65, 90))
+    predictedText = t
 
     predictedText = guessWords(predictedText)
     return predictedText
