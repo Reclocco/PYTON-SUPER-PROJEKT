@@ -8,7 +8,8 @@ def getMyTweetsData(number):
 
 
 def postTweet(text):
-    api.update_status(text)
+    if len(text) > 0:
+        api.update_status(text)
 
 
 def deleteLastTweet():

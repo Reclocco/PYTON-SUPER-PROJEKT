@@ -1,4 +1,4 @@
- import tweepy
+import tweepy
 from datetime import datetime
 from textblob import TextBlob
 import matplotlib.pyplot as plt

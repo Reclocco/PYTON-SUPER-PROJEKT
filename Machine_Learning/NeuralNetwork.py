@@ -20,12 +20,12 @@ char_to_num = dict((c, i) for i, c in enumerate(chars))
 num_to_char = dict((i, c) for i, c in enumerate(chars))
 
 
-def getLastWeightFile():
+def getLastWeightFile(topic):
     # pobiera ostatio dodany plik z wagami
     lastDate = datetime.datetime.fromtimestamp(0)
     lastFile = ''
-    for name in os.listdir(os.getcwd()):
-        if '.hdf5' in name:
+    for name in os.listdir(os.path.dirname(os.getcwd()) + '/Machine_Learning/'):
+        if str(topic) + '.hdf5' in name:
             date = datetime.datetime.strptime(name[10:29], '%Y-%m-%d-%H-%M-%S')
             if date > lastDate:
                 lastDate = date
@@ -65,27 +65,28 @@ def generateModel(text):
     return model, X, Y, x_data
 
 
-def train(text, epoch_n, batch_s):
+def train(text, epoch_n, batch_s, topic):
     model, X, Y, _ = generateModel(text)
     try:
-        last_weight_file = getLastWeightFile()
+        last_weight_file = os.path.dirname(os.getcwd()) + '/Machine_Learning/' + getLastWeightFile(topic)
         model.load_weights(last_weight_file)
         print(f'model loaded {last_weight_file}')
     except OSError:
         print('no model loaded')
     except ValueError:
         print('no model for specified network size')
-    new_weight_file = 'weights - ' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + '.hdf5'
+    new_weight_file = 'weights - ' + datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ' - ' + topic + '.hdf5'
+    print(new_weight_file)
     model.compile(loss='categorical_crossentropy', optimizer='adam')
     checkpoint = ModelCheckpoint(new_weight_file, monitor='loss', verbose=1, save_best_only=True, mode='min')
     desired_callbacks = [checkpoint]
     model.fit(X, Y, epochs=epoch_n, batch_size=batch_s, callbacks=desired_callbacks)
 
 
-def createTweet(text, result_length):
+def createTweet(text, result_length, topic):
     model, _, _, x_data = generateModel(text)
     try:
-        last_weight_file = getLastWeightFile()
+        last_weight_file = os.path.dirname(os.getcwd()) + '/Machine_Learning/' + getLastWeightFile(topic)
         model.load_weights(last_weight_file)
         print(f'model loaded {last_weight_file}')
         model.compile(loss='categorical_crossentropy', optimizer='adam')
