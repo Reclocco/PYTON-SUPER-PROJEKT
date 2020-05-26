@@ -4,7 +4,7 @@ from Data_Collection.twitterData import api, getUserTweetsData
 def getMyTweetsData(number):
     myAccount = api.me()
     id = myAccount._json['screen_name']
-    getUserTweetsData(id, number)
+    return getUserTweetsData(id, number)
 
 
 def postTweet(text):

@@ -31,19 +31,26 @@ def getTweetsForHashtag(hashtag, number):
 
 def getUserTweetsData(user, number):
     all_tweets = api.user_timeline(screen_name=user,
-                                   count=number,
-                                   tweet_mode='extended')
-    with open('%s_tweets.csv' % user, 'w+') as f:
-        writer = csv.writer(f)
-        writer.writerow(["id", "created_at", "text", "retweets", "likes"])
-        for tweet in all_tweets:
-            jsonTweet = tweet._json
-            row = [jsonTweet['id'],
-                   jsonTweet['created_at'],
-                   formatText(jsonTweet),
-                   jsonTweet['retweet_count'],
-                   jsonTweet['favorite_count']]
-            writer.writerow(row)
+                                   count=number)
+    data = []
+    # with open('%s_tweets.csv' % user, 'w+') as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["id", "created_at", "text", "retweets", "likes"])
+    #     for tweet in all_tweets:
+    #         jsonTweet = tweet._json
+    #         row = [jsonTweet['id'],
+    #                jsonTweet['created_at'],
+    #                formatText(jsonTweet),
+    #                jsonTweet['retweet_count'],
+    #                jsonTweet['favorite_count']]
+    #         writer.writerow(row)
+    for tweet in all_tweets:
+        jsonTweet = tweet._json
+        data.append(jsonTweet['created_at'])
+        data.append(formatText(jsonTweet))
+        data.append(jsonTweet['retweet_count'])
+        data.append(jsonTweet['favorite_count'])
+    return data
 
 
 def formatText(jsonTweet):
@@ -56,6 +63,7 @@ def formatText(jsonTweet):
     text = ''.join(e for e in text if 31 < ord(e) < 126)
     # remove RT
     text = text.replace('RT', '')
+    text = text.replace(',', '')
     # remove trailing spaces
     text = ' '.join(text.split())
     return text

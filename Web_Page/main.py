@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template
 from Machine_Learning.readText import areWordsEnglish
 from Machine_Learning.NeuralNetwork import createTweet
-from Data_Collection.myTwitterAccount import postTweet
+from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData
 
 app = Flask(__name__)
 
@@ -35,7 +35,8 @@ def createForTopic(topic):
 @app.route('/stats')
 def stats():
     # generate twitter statistics data to pass
-    data = "UwU t.. twittew-san, hewwo *-*"
+    # data = "UwU t.. twittew-san, hewwo *-*"
+    data = getMyTweetsData(100)
     return render_template('stats.html', data=data)
 
 
