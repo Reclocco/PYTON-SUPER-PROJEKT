@@ -60,6 +60,7 @@ def generateModel(text):
     Y = np_utils.to_categorical(y_data)
 
     tb._SYMBOLIC_SCOPE.value = True
+
     model = Sequential()
     model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
     model.add(Dropout(0.3))

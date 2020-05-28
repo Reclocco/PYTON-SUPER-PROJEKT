@@ -23,7 +23,7 @@ def generate():
 @app.route('/generated')
 def generated():
     # generate tweets to pass
-    # tweet = "lorem impsum tralala poka bimboły jak zdać studia tutorial 5 min fast"
+    # tweet = "lorem impsum tralala poka jak zdać studia tutorial 5 min fast"
     tweet = createForTopic('trump')
     postTweet(tweet)
     return render_template('generated.html', tweet=tweet)
@@ -32,7 +32,12 @@ def generated():
 def createForTopic(topic):
     # TODO wybrać odpowiedni plik zależnie od wybranego kafelka
     slash = '/' if platform.system() == 'Linux' else '\\'
-    filename = 'Data_Collection' + slash + topic + '.txt'
+    if platform.system() == 'Linux':
+        os.chdir('../')
+        filename = 'Data_Collection' + slash + topic + '.txt'
+    else:
+        filename = 'Data_Collection' + slash + topic + '.txt'
+    #filename = os.getcwd() + '/Data_Collection' + slash + topic + '.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
     tweet = createTweet(englishText, 100, topic)
