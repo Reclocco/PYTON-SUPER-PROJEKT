@@ -1,7 +1,11 @@
 import os
+import platform
+import sys
+
 import numpy
 import datetime
 import tensorflow as tf
+import keras.backend.tensorflow_backend as tb
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.utils import np_utils
@@ -24,7 +28,9 @@ def getLastWeightFile(topic):
     # pobiera ostatio dodany plik z wagami
     lastDate = datetime.datetime.fromtimestamp(0)
     lastFile = ''
-    for name in os.listdir(os.path.dirname(os.getcwd()) + '/Machine_Learning/'):
+    slash = '/' if platform.system() == 'Linux' else '\\'
+    directory = 'Machine_Learning' + slash
+    for name in os.listdir(directory):
         if str(topic) + '.hdf5' in name:
             date = datetime.datetime.strptime(name[10:29], '%Y-%m-%d-%H-%M-%S')
             if date > lastDate:
@@ -53,6 +59,7 @@ def generateModel(text):
     X = X / float(vocab_len)
     Y = np_utils.to_categorical(y_data)
 
+    tb._SYMBOLIC_SCOPE.value = True
     model = Sequential()
     model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
     model.add(Dropout(0.3))
@@ -86,11 +93,13 @@ def train(text, epoch_n, batch_s, topic):
 def createTweet(text, result_length, topic):
     model, _, _, x_data = generateModel(text)
     try:
-        last_weight_file = os.path.dirname(os.getcwd()) + '/Machine_Learning/' + getLastWeightFile(topic)
+        slash = '/' if platform.system() == 'Linux' else '\\'
+        last_weight_file = 'Machine_Learning' + slash + getLastWeightFile(topic)
         model.load_weights(last_weight_file)
         print(f'model loaded {last_weight_file}')
         model.compile(loss='categorical_crossentropy', optimizer='adam')
     except (OSError, ValueError):
+        print(sys.exc_info()[0])
         print("Cannot open weights file")
         return ''
 

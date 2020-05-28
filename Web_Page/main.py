@@ -32,7 +32,7 @@ def generated():
 def createForTopic(topic):
     # TODO wybrać odpowiedni plik zależnie od wybranego kafelka
     slash = '/' if platform.system() == 'Linux' else '\\'
-    filename = os.path.dirname(os.getcwd()) + slash + 'Data_Collection' + slash + topic + '.txt'
+    filename = 'Data_Collection' + slash + topic + '.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
     tweet = createTweet(englishText, 100, topic)
