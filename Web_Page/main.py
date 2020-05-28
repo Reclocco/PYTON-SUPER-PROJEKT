@@ -1,4 +1,5 @@
 import os
+import platform
 from flask import Flask, render_template
 from Machine_Learning.readText import areWordsEnglish
 from Machine_Learning.NeuralNetwork import createTweet
@@ -25,7 +26,8 @@ def generate():
 
 def createForTopic(topic):
     # TODO wybrać odpowiedni plik zależnie od wybranego kafelka
-    filename = os.path.dirname(os.getcwd()) + '/Data_Collection/' + topic + '.txt'
+    slash = '/' if platform.system() == 'Linux' else '\\'
+    filename = os.path.dirname(os.getcwd()) + slash + 'Data_Collection' + slash + topic + '.txt'
     file = open(filename).read()
     englishText = areWordsEnglish(file)
     tweet = createTweet(englishText, 100, topic)
