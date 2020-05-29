@@ -1,10 +1,27 @@
 from Data_Collection.twitterData import api, getUserTweetsData
+from pandas import DataFrame as dataframe
 
 
 def getMyTweetsData(number):
     myAccount = api.me()
     id = myAccount._json['screen_name']
     return getUserTweetsData(id, number)
+
+def getMyRetweetsFavourites(number):
+    data = getMyTweetsData(number)
+    retweets = data[2::4]
+    favourites = data[3::4]
+    for e in favourites:
+        e = int(e)
+    for e in retweets:
+        e = int(e)
+    #print(data)
+    sum_f = sum(favourites)
+    sum_r = sum(retweets)
+    d = {'retweets': [sum_r], 'favourites': [sum_f]}
+    df = dataframe(data=d)
+    return df
+
 
 
 def postTweet(text):

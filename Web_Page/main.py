@@ -1,9 +1,10 @@
 import os
 import platform
 from flask import Flask, render_template
+from pandas import DataFrame as dataframe
 from Machine_Learning.readText import areWordsEnglish
 from Machine_Learning.NeuralNetwork import createTweet
-from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData
+from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData, getMyRetweetsFavourites
 
 app = Flask(__name__)
 
@@ -49,6 +50,11 @@ def stats():
     # generate twitter statistics data to pass
     # data = "UwU t.. twittew-san, hewwo *-*"
     data = getMyTweetsData(100)
+    frame = getMyRetweetsFavourites(100)
+    print(frame)
+
+
+
     return render_template('stats.html', data=data)
 
 
