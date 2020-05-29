@@ -13,4 +13,28 @@
     </div>
     <script src="/static/js/stats.js"></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+    <div class="container-fluid">
+        <div class="row welcome text-center">
+            <div class="col-12">
+                <h1 class="display-4"> Charts</h1>
+            </div>
+            <div class="col-12">
+                <canvas id="chart" width="400" height="300"></canvas>
+                <script>
+                  var pieData = [
+                    {% for item, label, colors in set %}
+                       {
+                         value: {{item}},
+                         label: "{{label}}",
+                         color: "{{colors}}"
+
+                        },
+                    {% endfor %}
+                  ];
+                  steps = 10
+                  new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData)
+                </script>
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -20,7 +20,8 @@ def getMyRetweetsFavourites(number):
     sum_r = sum(retweets)
     d = {'retweets': [sum_r], 'favourites': [sum_f]}
     df = dataframe(data=d)
-    return df
+    return (['retweets','favourites'],
+            [sum_r,sum_f])
 
 
 

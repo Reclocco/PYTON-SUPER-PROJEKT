@@ -1,5 +1,6 @@
 import os
 import platform
+import random
 from flask import Flask, render_template
 from pandas import DataFrame as dataframe
 from Machine_Learning.readText import areWordsEnglish
@@ -50,12 +51,18 @@ def stats():
     # generate twitter statistics data to pass
     # data = "UwU t.. twittew-san, hewwo *-*"
     data = getMyTweetsData(100)
-    frame = getMyRetweetsFavourites(100)
-    print(frame)
+    names = []
+    counts = []
+    colors = []
+    names, counts = getMyRetweetsFavourites(100)
+    colors = [randomColor() for i in range(2)]
 
 
 
-    return render_template('stats.html', data=data)
+    return render_template('stats.html', data=data,max=17000,set=zip(counts,names,colors))
+
+def randomColor():
+    return ('#' + str(''.join([random.choice('0123456789ABCDEF') for x in range(6)])))
 
 
 if __name__ == '__main__':
