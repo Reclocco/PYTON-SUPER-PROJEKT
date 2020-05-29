@@ -1,5 +1,6 @@
 from Data_Collection.twitterData import api, getUserTweetsData
 from pandas import DataFrame as dataframe
+import datetime
 
 
 def getMyTweetsData(number):
@@ -23,6 +24,23 @@ def getMyRetweetsFavourites(number):
     return (['retweets','favourites'],
             [sum_r,sum_f])
 
+
+def getMyTodayYesterdayTweets(number):
+    todayCount = 0
+    yesterdayCount = 0
+    data = getMyTweetsData(number)
+    dates = data[0::4]
+    today = datetime.datetime.today()
+    yesterday = datetime.date.today() - datetime.timedelta(days=1)
+    today = today.strftime("%c")
+    yesterday = yesterday.strftime("%c")
+    for date in dates:
+        if(date[0:10] == today[0:10]):
+            todayCount += 1
+        elif(date[0:10] == yesterday[0:10]):
+            yesterdayCount += 1
+    return (['yesterday', 'today'],
+            [yesterdayCount, todayCount])
 
 
 def postTweet(text):

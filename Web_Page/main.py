@@ -5,7 +5,7 @@ from flask import Flask, render_template
 from pandas import DataFrame as dataframe
 from Machine_Learning.readText import areWordsEnglish
 from Machine_Learning.NeuralNetwork import createTweet
-from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData, getMyRetweetsFavourites
+from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData, getMyRetweetsFavourites, getMyTodayYesterdayTweets
 
 app = Flask(__name__)
 
@@ -54,16 +54,23 @@ def stats():
     names = []
     counts = []
     colors = []
+    colors2 = []
+    dates = []
+    tweetsByDate = []
+
     names, counts = getMyRetweetsFavourites(100)
     colors = [randomColor() for i in range(2)]
+    colors2 = [randomColor() for i in range(2)]
+    dates, tweetsByDate = getMyTodayYesterdayTweets(100)
 
 
 
-    return render_template('stats.html', data=data,max=17000,set=zip(counts,names,colors))
+    return render_template('stats.html', data=data,max=17000,set=zip(counts,names,colors),set2=zip(tweetsByDate,dates,colors2))
 
 def randomColor():
     return ('#' + str(''.join([random.choice('0123456789ABCDEF') for x in range(6)])))
 
 
 if __name__ == '__main__':
+    getMyTodayYesterdayTweets(100)
     app.run(threaded=False)
