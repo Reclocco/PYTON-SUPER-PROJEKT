@@ -2,7 +2,8 @@ import tweepy
 from datetime import datetime
 from textblob import TextBlob
 import matplotlib.pyplot as plt
-from config import *
+
+from Statistics.config import consumer_secret, consumer_key, access_token, access_token_secret
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
@@ -52,13 +53,15 @@ def getData():
     averagePolarity = "{0:.0f}%".format(averagePolarity * 100)
     time = datetime.now().strftime("At: %H:%M\nOn: %m-%d-%y")
 
-    plt.text(0, 1.25, "Average Sentiment:  " + str(averagePolarity) + "\n" + time, fontsize=12,
-             bbox=dict(facecolor='none', edgecolor='black', boxstyle='square, pad = 1'))
+    #plt.text(0, 1.25, "Average Sentiment:  " + str(averagePolarity) + "\n" + time, fontsize=12,
+    #         bbox=dict(facecolor='none', edgecolor='black', boxstyle='square, pad = 1'))
 
-    plt.title("Sentiment of " + keyword + " on Twitter")
-    plt.xlabel("Number of Tweets")
-    plt.ylabel("Sentiment")
-    plt.show()
+    #plt.title("Sentiment of " + keyword + " on Twitter")
+    #plt.xlabel("Number of Tweets")
+    #plt.ylabel("Sentiment")
+    #plt.show()
+    #print(str(averagePolarity))
+    return [[keyword],[float(averagePolarity.strip('%'))]]
 
 
 if __name__ == '__main__':

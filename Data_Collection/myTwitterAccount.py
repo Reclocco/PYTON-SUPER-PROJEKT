@@ -32,17 +32,42 @@ def getMyTodayYesterdayTweets(number):
     yesterdayCount = 0
     data = getMyTweetsData(number)
     dates = data[0::4]
-    today = datetime.datetime.today()
-    yesterday = datetime.date.today() - datetime.timedelta(days=1)
-    today = today.strftime("%c")
-    yesterday = yesterday.strftime("%c")
-
-    if(today[8] == ' '):
-        today = change_char(today,8,"0")
-    if (yesterday[8] == ' '):
-        yesterday = change_char(yesterday, 8, "0")
-
+    newdates = []
     for date in dates:
+        newdate = date.split(' ')
+        year = newdate[5]
+        day = newdate[2]
+        if(newdate[1] == 'Jan'):
+            month = '01'
+        elif (newdate[1] == 'Feb'):
+            month = '02'
+        elif (newdate[1] == 'Mar'):
+            month = '03'
+        elif (newdate[1] == 'Apr'):
+            month = '04'
+        elif (newdate[1] == 'May'):
+            month = '05'
+        elif (newdate[1] == 'Jun'):
+            month = '06'
+        elif (newdate[1] == 'Jul'):
+            month = '07'
+        elif (newdate[1] == 'Aug'):
+            month = '08'
+        elif (newdate[1] == 'Sep'):
+            month = '09'
+        elif (newdate[1] == 'Oct'):
+            month = '10'
+        elif (newdate[1] == 'Nov'):
+            month = '11'
+        elif (newdate[1] == 'Dec'):
+            month = '12'
+        new_date = year + "-" + month + "-" + day
+        newdates.append(new_date)
+
+
+    today = datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    for date in newdates:
         if(date[0:10] == today[0:10]):
             todayCount += 1
         elif(date[0:10] == yesterday[0:10]):
