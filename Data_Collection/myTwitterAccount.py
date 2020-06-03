@@ -24,6 +24,8 @@ def getMyRetweetsFavourites(number):
     return (['retweets','favourites'],
             [sum_r,sum_f])
 
+def change_char(s, p, r):
+        return s[:p]+r+s[p+1:]
 
 def getMyTodayYesterdayTweets(number):
     todayCount = 0
@@ -34,6 +36,12 @@ def getMyTodayYesterdayTweets(number):
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
     today = today.strftime("%c")
     yesterday = yesterday.strftime("%c")
+
+    if(today[8] == ' '):
+        today = change_char(today,8,"0")
+    if (yesterday[8] == ' '):
+        yesterday = change_char(yesterday, 8, "0")
+
     for date in dates:
         if(date[0:10] == today[0:10]):
             todayCount += 1

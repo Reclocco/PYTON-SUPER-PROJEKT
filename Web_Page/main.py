@@ -62,6 +62,8 @@ def stats():
     colors = [randomColor() for i in range(2)]
     colors2 = [randomColor() for i in range(2)]
     dates, tweetsByDate = getMyTodayYesterdayTweets(100)
+    print(zip(counts,names,colors))
+    print(zip(tweetsByDate,dates,colors2))
 
 
 
@@ -72,5 +74,5 @@ def randomColor():
 
 
 if __name__ == '__main__':
-    getMyTodayYesterdayTweets(100)
+    print(getMyTodayYesterdayTweets(100))
     app.run(threaded=False)

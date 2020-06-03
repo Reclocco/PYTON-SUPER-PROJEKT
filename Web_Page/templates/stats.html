@@ -12,14 +12,16 @@
         </div>
     </div>
     <script src="/static/js/stats.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+
+
     <div class="container-fluid">
         <div class="row welcome text-center">
             <div class="col-12">
                 <h3 class="display-4"> Retweets and Favourites from last 100 tweets</h3>
             </div>
             <div class="col-12">
-                <canvas id="chart" width="400" height="300"></canvas>
+                <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+                <canvas id="chart1" width="400" height="300"></canvas>
                 <script>
                   var pieData = [
                     {% for item, label, colors in set %}
@@ -32,32 +34,81 @@
                     {% endfor %}
                   ];
                   steps = 10
-                  new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData)
+                  new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData)
+
                 </script>
+
             </div>
-        </div>
-    </div>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
-    <div class="container-fluid">
-        <div class="text-center">
+
+
             <div class="col-12">
                 <h3 class="display-4"> Number of tweets from today and yesterday</h3>
             </div>
             <div class="col-12">
+                <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
                 <canvas id="chart2" width="400" height="300"></canvas>
                 <script>
-                  var pieData2 = [
-                    {% for item, label, colors in set2 %}
-                       {
-                         value: {{item}},
-                         label: "{{label}}",
-                         color: "{{colors}}"
+                    var pieData2 = [
+                        {% for item, label, colors in set2 %}
+                            {
+                                value: {{item}},
+                                label: "{{label}}",
+                                color: "{{colors}}"
 
-                        },
-                    {% endfor %}
-                  ];
-                  steps = 10
-                  new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2)
+                            },
+                        {% endfor %}
+                    ];
+                    steps = 10
+                    new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2)
+                </script>
+
+            </div>
+
+
+            <div class="col-12">
+                <h3 class="display-4"> Bar</h3>
+            </div>
+            <div class="col-12">
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+                <canvas id="chart3" width="400" height="400"></canvas>
+                <script>
+                var ctx = document.getElementById('chart3');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                        datasets: [{
+                            label: '# of Votes',
+                            data: [12, 19, 3, 5, 2, 3],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                 }
+                             }]
+                        }
+                    }
+                });
                 </script>
             </div>
         </div>
