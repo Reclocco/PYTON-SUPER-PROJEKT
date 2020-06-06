@@ -61,7 +61,7 @@ def getData():
     #plt.ylabel("Sentiment")
     #plt.show()
     #print(str(averagePolarity))
-    return [[keyword],[float(averagePolarity.strip('%'))]]
+    return [[keyword], [float(averagePolarity.strip('%'))]]
 
 
 if __name__ == '__main__':

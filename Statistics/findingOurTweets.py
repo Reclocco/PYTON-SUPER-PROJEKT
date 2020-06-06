@@ -1,5 +1,7 @@
-from config import *
+import auth as auth
+from Statistics.config import *
 import tweepy
+
 
 api = tweepy.API(auth, wait_on_rate_limit=True)
 
@@ -17,6 +19,5 @@ data_since = "2020-05-12"
 results = api.search(q=query, lang=language, since = data_since)
 
 for tweet in results:
-    print (tweet.user.screen_name,"Tweeted:",tweet.text)
+    print(tweet.user.screen_name,"Tweeted:",tweet.text)
 # po query wyszukuje tweety naszego bota dopasowane    
-    
