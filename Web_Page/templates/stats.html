@@ -1,77 +1,72 @@
 {% extends "base.html" %}
 {% block title %} Twitter Statistics {% endblock %}
 {% block content %}
-    <div class="container-fluid">
-        <div class="row welcome text-center">
-            <div class="col-12">
-                <h1 class="display-4"> TweetBot Statistics</h1>
-            </div>
-            <div class="col-12">
-                <p id="data" class="lead">{{data}}</p>
-            </div>
+<div class="container-fluid">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h1 class="display-4"> TweetBot Statistics</h1>
+        </div>
+        <div class="col-12">
+            <p id="data" class="lead">{{data}}</p>
         </div>
     </div>
-    <script src="/static/js/stats.js"></script>
+</div>
+<script src="/static/js/stats.js"></script>
 
 
-    <div class="container-fluid">
-        <div class="row welcome text-center">
-            <div class="col-12">
-                <h3 class="display-4"> Retweets and Favourites from last 100 tweets</h3>
-            </div>
-            <div class="col-12">
-                <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
-                <canvas id="chart1" width="400" height="300"></canvas>
-                <script>
-                  var pieData = [
+<div class="container-fluid">
+    <div class="row welcome text-center">
+        <div class="col-12">
+            <h3 class="display-4"> Retweets and Favourites from last 100 tweets</h3>
+        </div>
+        <div class="col-12">
+            <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+            <canvas id="chart1" width="400" height="300"></canvas>
+            <script>
+                var pieData = [
                     {% for item, label, colors in set %}
-                       {
-                         value: {{item}},
-                         label: "{{label}}",
-                         color: "{{colors}}"
-
-                        },
+                    {
+                        value: {{item}},
+                        label: "{{label}}",
+                        color: "{{colors}}"
+                    },
                     {% endfor %}
-                  ];
-                  steps = 10
-                  new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData)
-
-                </script>
-
-            </div>
+                ];
+                steps = 10;
+                new Chart(document.getElementById("chart1").getContext("2d")).Pie(pieData)
+            </script>
+        </div>
 
 
-            <div class="col-12">
-                <h3 class="display-4"> Number of tweets from today and yesterday</h3>
-            </div>
-            <div class="col-12">
-                <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
-                <canvas id="chart2" width="400" height="300"></canvas>
-                <script>
-                    var pieData2 = [
-                        {% for item, label, colors in set2 %}
-                            {
-                                value: {{item}},
-                                label: "{{label}}",
-                                color: "{{colors}}"
-
-                            },
-                        {% endfor %}
-                    ];
-                    steps = 10
-                    new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2)
-                </script>
-
-            </div>
+        <div class="col-12">
+            <h3 class="display-4"> Number of tweets from today and yesterday</h3>
+        </div>
+        <div class="col-12">
+            <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+            <canvas id="chart2" width="400" height="300"></canvas>
+            <script>
+                var pieData2 = [
+                    {% for item, label, colors in set2 %}
+                    {
+                        value: {{item}},
+                        label: "{{label}}",
+                        color: "{{colors}}"
+                    },
+                    {% endfor %}
+                ];
+                steps = 10;
+                new Chart(document.getElementById("chart2").getContext("2d")).Pie(pieData2)
+            </script>
+        </div>
 
 
-            <div class="col-12">
-                <h3 class="display-4"> Tweets Sentiment</h3>
-            </div>
-            <div class="col-12">
-                <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-                <canvas id="chart3" width="800" height="800"></canvas>
-                <script>
+        <div class="col-12">
+            <h3 class="display-4"> Tweets Sentiment</h3>
+        </div>
+        <div class="col-12">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+            <canvas id="chart3" width="800" height="800"></canvas>
+            <script>
                 var ctx = document.getElementById('chart3');
                 var myChart = new Chart(ctx, {
                     type: 'bar',
@@ -80,29 +75,22 @@
                         datasets: [{
                             label: '%',
                             data: {{sentiment | tojson}},
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)'
-                            ],
+                            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
+                            borderColor: ['rgba(255, 99, 132, 1)'],
                             borderWidth: 1
-
                         }]
                     },
                     options: {
                         responsive: false,
                         scales: {
                             yAxes: [{
-                                ticks: {
-                                    beginAtZero: true
-                                 }
-                             }]
+                                ticks: {beginAtZero: true}
+                            }]
                         }
                     }
                 });
-                </script>
-            </div>
+            </script>
         </div>
     </div>
+</div>
 {% endblock %}
