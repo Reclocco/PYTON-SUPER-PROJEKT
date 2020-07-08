@@ -2,6 +2,8 @@ import os
 import enchant
 from Machine_Learning.NeuralNetwork import chars, train, createTweet
 
+from Machine_Learning.fileFinder import findFile
+
 
 def areWordsEnglish(text):
     # średnio 75% treści tweetów jest jakimis realnymi słowami
@@ -36,7 +38,7 @@ def areWordsEnglish(text):
 
 
 if __name__ == '__main__':
-    filename = os.path.dirname(os.getcwd()) + '/Data_Collection/trump.txt'
+    filename = findFile("trump", "txt")
     file = open(filename).read()
     englishText = areWordsEnglish(file)
     # train(englishText, 1, 256, 'trump')

@@ -8,6 +8,8 @@ from Data_Collection.myTwitterAccount import postTweet, getMyTweetsData, getMyRe
     getMyTodayYesterdayTweets
 from Statistics.sentiment import getData
 
+from Machine_Learning.fileFinder import findFile
+
 app = Flask(__name__)
 
 
@@ -32,14 +34,14 @@ def generated():
 
 
 def createForTopic(topic):
-    # TODO wybrać odpowiedni plik zależnie od wybranego kafelka
-    slash = '/' if platform.system() == 'Linux' else '\\'
-    if platform.system() == 'Linux':
-        os.chdir('../')
-        filename = 'Data_Collection' + slash + topic + '.txt'
-    else:
-        filename = 'Data_Collection' + slash + topic + '.txt'
-    file = open(filename).read()
+    # slash = '/' if platform.system() == 'Linux' else '\\'
+    # if platform.system() == 'Linux':
+    #     os.chdir('../')
+    #     filename = 'Data_Collection' + slash + topic + '.txt'
+    # else:
+    #     filename = 'Data_Collection' + slash + topic + '.txt'
+    # file = open(filename).read()
+    file = open(findFile(topic, "txt")).read()
     englishText = areWordsEnglish(file)
     tweet = createTweet(englishText, 100, topic)
     return tweet

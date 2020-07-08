@@ -54,17 +54,20 @@ def guessWords(text):
     dictGB = enchant.Dict('en_GB')
     newText = ''
     for word in text.split():
-        if len(word) > 0:
-            if dictUS.check(word) or dictGB.check(word):
-                newText += word + ' '
-            else:
-                bestMatch = word
-                highestValue = 0
-                suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
-                for s in suggestions:
-                    val = difflib.SequenceMatcher(None, word, s).ratio()
-                    if val > highestValue:
-                        highestValue = val
-                        bestMatch = s
-                newText += bestMatch + ' '
+        try:
+            if len(word) > 0:
+                if dictUS.check(word) or dictGB.check(word):
+                    newText += word + ' '
+                else:
+                    bestMatch = word
+                    highestValue = 0
+                    suggestions = set(dictUS.suggest(word) + dictGB.suggest(word))
+                    for s in suggestions:
+                        val = difflib.SequenceMatcher(None, word, s).ratio()
+                        if val > highestValue:
+                            highestValue = val
+                            bestMatch = s
+                    newText += bestMatch + ' '
+        except enchant.errors.Error:
+            newText += word + ' '
     return newText

@@ -12,6 +12,8 @@ from keras.utils import np_utils
 from keras.callbacks import ModelCheckpoint
 from Machine_Learning.textFormating import formatPrediction
 
+from Machine_Learning.fileFinder import findFile
+
 
 # 30 dozwolonych znaków
 # (im mniej znaków tym prościej wytrenować)
@@ -22,21 +24,6 @@ chars = sorted(
 # przeliczenie ze znaków na liczby
 char_to_num = dict((c, i) for i, c in enumerate(chars))
 num_to_char = dict((i, c) for i, c in enumerate(chars))
-
-
-def getLastWeightFile(topic):
-    # pobiera ostatio dodany plik z wagami
-    lastDate = datetime.datetime.fromtimestamp(0)
-    lastFile = ''
-    slash = '/' if platform.system() == 'Linux' else '\\'
-    directory = 'Machine_Learning' + slash
-    for name in os.listdir(directory):
-        if str(topic) + '.hdf5' in name:
-            date = datetime.datetime.strptime(name[10:29], '%Y-%m-%d-%H-%M-%S')
-            if date > lastDate:
-                lastDate = date
-                lastFile = name
-    return lastFile
 
 
 def generateModel(text):
@@ -76,7 +63,7 @@ def generateModel(text):
 def train(text, epoch_n, batch_s, topic):
     model, X, Y, _ = generateModel(text)
     try:
-        last_weight_file = os.path.dirname(os.getcwd()) + '/Machine_Learning/' + getLastWeightFile(topic)
+        last_weight_file = findFile(topic, "hdf5")
         model.load_weights(last_weight_file)
         print(f'model loaded {last_weight_file}')
     except OSError:
@@ -94,8 +81,7 @@ def train(text, epoch_n, batch_s, topic):
 def createTweet(text, result_length, topic):
     model, _, _, x_data = generateModel(text)
     try:
-        slash = '/' if platform.system() == 'Linux' else '\\'
-        last_weight_file = 'Machine_Learning' + slash + getLastWeightFile(topic)
+        last_weight_file = findFile(topic, "hdf5")
         model.load_weights(last_weight_file)
         print(f'model loaded {last_weight_file}')
         model.compile(loss='categorical_crossentropy', optimizer='adam')
@@ -112,8 +98,6 @@ def createTweet(text, result_length, topic):
         x = numpy.reshape(pattern, (1, len(pattern), 1))
         x = x / vocab_len
         prediction = model.predict(x, verbose=0)
-
-        # chooces one with max probability
         index = numpy.argmax(prediction)
 
         pattern.append(index)
